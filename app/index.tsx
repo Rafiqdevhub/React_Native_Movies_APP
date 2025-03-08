@@ -1,15 +1,13 @@
 import { Text, View } from "react-native";
 
-export default function Index() {
+const Index = () => {
   return (
     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      className="mt-5"
     >
-      <Text>Welcome to the movie app</Text>
+      <Text className="text-fuchsia-500">Welcome to the movie app..</Text>
     </View>
   );
 }
+
+export default Index;
