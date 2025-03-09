@@ -20,14 +20,12 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
     }
 
     try {
-        // First check if the document exists
         const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
             Query.equal("searchTerm", query),
         ]);
 
         if (result.documents.length > 0) {
             const existingMovie = result.documents[0];
-            // Update existing document
             return await database.updateDocument(
                 DATABASE_ID,
                 COLLECTION_ID,
@@ -37,7 +35,6 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
                 }
             );
         } else {
-            // Create new document
             return await database.createDocument(DATABASE_ID, COLLECTION_ID, ID.unique(), {
                 searchTerm: query,
                 movie_id: movie.id,
@@ -63,6 +60,76 @@ export const getTrendingMovies = async (): Promise<TrendingMovie[]> => {
         return result.documents as unknown as TrendingMovie[];
     } catch (error) {
         console.error("Error fetching trending movies:", error);
+        throw error;
+    }
+};
+
+export const saveMovie = async (movie: MovieDetails) => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.equal("movie_id", movie.id),
+            Query.equal("searchTerm", `saved_${movie.id}`),
+        ]);
+
+        if (result.documents.length === 0) {
+            return await database.createDocument(DATABASE_ID, COLLECTION_ID, ID.unique(), {
+                searchTerm: `saved_${movie.id}`,
+                movie_id: movie.id,
+                title: movie.title,
+                poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                vote_average: movie.vote_average,
+                release_date: movie.release_date,
+                saved_at: new Date().toISOString(),
+                count: 1,
+            });
+        }
+        return result.documents[0];
+    } catch (error) {
+        console.error("Error saving movie:", error);
+        throw error;
+    }
+};
+
+export const unsaveMovie = async (movieId: number) => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.equal("movie_id", movieId),
+            Query.equal("searchTerm", `saved_${movieId}`),
+        ]);
+
+        if (result.documents.length > 0) {
+            await database.deleteDocument(DATABASE_ID, COLLECTION_ID, result.documents[0].$id);
+        }
+    } catch (error) {
+        console.error("Error removing saved movie:", error);
+        throw error;
+    }
+};
+
+export const getSavedMovies = async () => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.startsWith("searchTerm", "saved_"),
+            Query.orderDesc("saved_at"),
+        ]);
+
+        return result.documents;
+    } catch (error) {
+        console.error("Error fetching saved movies:", error);
+        throw error;
+    }
+};
+
+export const isMovieSaved = async (movieId: number) => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.equal("movie_id", movieId),
+            Query.equal("searchTerm", `saved_${movieId}`),
+        ]);
+
+        return result.documents.length > 0;
+    } catch (error) {
+        console.error("Error checking saved movie:", error);
         throw error;
     }
 };
