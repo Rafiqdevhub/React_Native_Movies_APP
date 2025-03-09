@@ -1,17 +1,26 @@
-import { ActivityIndicator, FlatList, Image, ScrollView, Text, View } from 'react-native'
-import { images } from '@/constants/images'
-import { icons } from '@/constants/icons'
-import Search from '@/components/SearchBar'
-import { useRouter } from 'expo-router'
-import useFetch from '@/services/useFetch'
-import { fetchMovies } from '@/services/api'
-import TrendingCard from '@/components/TrendingCard'
-import { getTrendingMovies } from '@/services/appwrite'
-import MovieCard from '@/components/MovieCard'
+import {
+    View,
+    Text,
+    ActivityIndicator,
+    ScrollView,
+    Image,
+    FlatList,
+} from "react-native";
+import { useRouter } from "expo-router";
 
+import { fetchMovies } from "@/services/api";
+import { getTrendingMovies } from "@/services/appwrite";
+
+import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
+
+import SearchBar from "@/components/SearchBar";
+import MovieCard from "@/components/MovieCard";
+import TrendingCard from "@/components/TrendingCard";
+import useFetch from "@/services/useFetch";
 
 const Index = () => {
-    const router = useRouter()
+    const router = useRouter();
 
     const {
         data: trendingMovies,
@@ -19,7 +28,12 @@ const Index = () => {
         error: trendingError,
     } = useFetch(getTrendingMovies);
 
-    const { data: movies, loading: moviesLoading, error: moviesError } = useFetch(() => fetchMovies({ query: "" }))
+    const {
+        data: movies,
+        loading: moviesLoading,
+        error: moviesError,
+    } = useFetch(() => fetchMovies({ query: "" }));
+
     return (
         <View className="flex-1 bg-primary">
             <Image
@@ -45,7 +59,7 @@ const Index = () => {
                     <Text>Error: {moviesError?.message || trendingError?.message}</Text>
                 ) : (
                     <View className="flex-1 mt-5">
-                        <Search
+                        <SearchBar
                             onPress={() => {
                                 router.push("/search");
                             }}
@@ -98,7 +112,7 @@ const Index = () => {
                 )}
             </ScrollView>
         </View>
-    )
-}
+    );
+};
 
-export default Index
+export default Index;
