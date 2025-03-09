@@ -8,9 +8,10 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { useState, useEffect } from "react";
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
+import { saveMovie, unsaveMovie, isMovieSaved } from "@/services/appwrite";
 import useFetch from "@/services/useFetch";
 
 interface MovieInfoProps {
@@ -30,10 +31,35 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => (
 const Details = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams();
+    const [isSaved, setIsSaved] = useState(false);
 
     const { data: movie, loading } = useFetch(() =>
         fetchMovieDetails(id as string)
     );
+
+    useEffect(() => {
+        const checkSavedStatus = async () => {
+            if (movie?.id) {
+                const saved = await isMovieSaved(movie.id);
+                setIsSaved(saved);
+            }
+        };
+        checkSavedStatus();
+    }, [movie?.id]);
+
+    const handleSaveToggle = async () => {
+        if (!movie) return;
+        try {
+            if (isSaved) {
+                await unsaveMovie(movie.id);
+            } else {
+                await saveMovie(movie);
+            }
+            setIsSaved(!isSaved);
+        } catch (error) {
+            console.error("Error toggling save:", error);
+        }
+    };
 
     if (loading)
         return (
@@ -54,13 +80,26 @@ const Details = () => {
                         resizeMode="stretch"
                     />
 
-                    <TouchableOpacity className="absolute bottom-5 right-5 rounded-full size-14 bg-white flex items-center justify-center">
-                        <Image
-                            source={icons.play}
-                            className="w-6 h-7 ml-1"
-                            resizeMode="stretch"
-                        />
-                    </TouchableOpacity>
+                    <View className="absolute bottom-5 right-5 flex-row gap-x-4">
+                        <TouchableOpacity
+                            className="rounded-full size-14 bg-accent flex items-center justify-center"
+                            onPress={handleSaveToggle}
+                        >
+                            <Image
+                                source={icons.save}
+                                className="size-6"
+                                tintColor={isSaved ? "#030014" : "#fff"}
+                            />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity className="rounded-full size-14 bg-white flex items-center justify-center">
+                            <Image
+                                source={icons.play}
+                                className="w-6 h-7 ml-1"
+                                resizeMode="stretch"
+                            />
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <View className="flex-col items-start justify-center mt-5 px-5">
