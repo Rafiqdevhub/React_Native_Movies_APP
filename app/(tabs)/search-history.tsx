@@ -45,7 +45,11 @@ const SearchHistory = () => {
                 ) : error ? (
                     <Text className="text-red-500 mt-10 text-center">{error.message}</Text>
                 ) : (
-                    <ScrollView className="flex-1 px-5 mt-5">
+                    <ScrollView
+                        className="flex-1 px-5 mt-5"
+                        showsVerticalScrollIndicator={false}
+                        scrollEventThrottle={16}
+                    >
                         {trendingMovies?.filter(movie => !movie.searchTerm.startsWith('saved_')).map((item) => (
                             <TouchableOpacity
                                 key={item.$id}

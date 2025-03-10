@@ -8,7 +8,8 @@ const RootLayout = () => {
       <StatusBar hidden={true} />
       <Stack screenOptions={{
         headerShown: false,
-        gestureEnabled: false // Disable swipe gesture
+        gestureEnabled: true, // Enable swipe back gesture
+        gestureDirection: 'horizontal'
       }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="movie/[id]" />

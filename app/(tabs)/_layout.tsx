@@ -92,18 +92,22 @@ const TabsLayout = () => {
                 name="watchlist"
                 options={{
                     href: null,
+                    headerShown: false,
                 }}
             />
             <Tabs.Screen
                 name="ratings"
                 options={{
                     href: null,
+                    headerShown: false,
                 }}
             />
             <Tabs.Screen
                 name="search-history"
                 options={{
+
                     href: null,
+                    headerShown: false,
                 }}
             />
         </Tabs>
