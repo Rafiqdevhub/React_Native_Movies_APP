@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
-import { saveMovie, unsaveMovie, isMovieSaved } from "@/services/appwrite";
+import { saveMovie, unsaveMovie, isMovieSaved, rateMovie, deleteRating } from "@/services/appwrite";
 import useFetch from "@/services/useFetch";
 
 interface MovieInfoProps {
@@ -28,10 +28,29 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => (
     </View>
 );
 
+const RatingStars = ({ rating, onRate }: { rating: number, onRate: (rating: number) => void }) => (
+    <View className="flex-row mt-4">
+        {[1, 2, 3, 4, 5].map((star) => (
+            <TouchableOpacity
+                key={star}
+                onPress={() => onRate(star)}
+                className="mr-2"
+            >
+                <Image
+                    source={icons.star}
+                    className="size-8"
+                    tintColor={star <= rating ? "#AB8BFF" : "#A8B5DB"}
+                />
+            </TouchableOpacity>
+        ))}
+    </View>
+);
+
 const Details = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams();
     const [isSaved, setIsSaved] = useState(false);
+    const [rating, setRating] = useState(0);
 
     const { data: movie, loading } = useFetch(() =>
         fetchMovieDetails(id as string)
@@ -58,6 +77,21 @@ const Details = () => {
             setIsSaved(!isSaved);
         } catch (error) {
             console.error("Error toggling save:", error);
+        }
+    };
+
+    const handleRate = async (value: number) => {
+        if (!movie) return;
+        try {
+            if (value === rating) {
+                await deleteRating(movie.id);
+                setRating(0);
+            } else {
+                await rateMovie(movie, value);
+                setRating(value);
+            }
+        } catch (error) {
+            console.error("Error rating movie:", error);
         }
     };
 
@@ -121,6 +155,11 @@ const Details = () => {
                         <Text className="text-light-200 text-sm">
                             ({movie?.vote_count} votes)
                         </Text>
+                    </View>
+
+                    <View className="w-full mt-4 bg-dark-100 p-4 rounded-xl">
+                        <Text className="text-white font-semibold text-base">Rate this Movie</Text>
+                        <RatingStars rating={rating} onRate={handleRate} />
                     </View>
 
                     <MovieInfo label="Overview" value={movie?.overview} />

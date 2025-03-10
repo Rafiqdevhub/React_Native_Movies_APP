@@ -88,6 +88,24 @@ const TabsLayout = () => {
                     ),
                 }}
             />
+            <Tabs.Screen
+                name="watchlist"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="ratings"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="search-history"
+                options={{
+                    href: null,
+                }}
+            />
         </Tabs>
     )
 }

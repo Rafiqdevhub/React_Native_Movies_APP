@@ -19,6 +19,24 @@ const RootLayout = () => {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="watchlist"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="ratings"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="search-history"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </>
   )

@@ -133,3 +133,72 @@ export const isMovieSaved = async (movieId: number) => {
         throw error;
     }
 };
+
+export const getRatedMovies = async () => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.startsWith("searchTerm", "rated_"),
+            Query.orderDesc("rated_at"),
+        ]);
+
+        return result.documents;
+    } catch (error) {
+        console.error("Error fetching rated movies:", error);
+        throw error;
+    }
+};
+
+export const rateMovie = async (movie: MovieDetails, rating: number) => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.equal("movie_id", movie.id),
+            Query.equal("searchTerm", `rated_${movie.id}`),
+        ]);
+
+        if (result.documents.length === 0) {
+            return await database.createDocument(DATABASE_ID, COLLECTION_ID, ID.unique(), {
+                searchTerm: `rated_${movie.id}`,
+                movie_id: movie.id,
+                title: movie.title,
+                poster_path: movie.poster_path,
+                vote_average: movie.vote_average,
+                release_date: movie.release_date,
+                rating: rating,
+                rated_at: new Date().toISOString(),
+            });
+        } else {
+            return await database.updateDocument(
+                DATABASE_ID,
+                COLLECTION_ID,
+                result.documents[0].$id,
+                {
+                    rating: rating,
+                    rated_at: new Date().toISOString(),
+                }
+            );
+        }
+    } catch (error) {
+        console.error("Error rating movie:", error);
+        throw error;
+    }
+};
+
+export const deleteRating = async (movieId: number) => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.equal("movie_id", movieId),
+            Query.equal("searchTerm", `rated_${movieId}`),
+        ]);
+
+        if (result.documents.length > 0) {
+            await database.deleteDocument(
+                DATABASE_ID,
+                COLLECTION_ID,
+                result.documents[0].$id
+            );
+        }
+    } catch (error) {
+        console.error("Error deleting rating:", error);
+        throw error;
+    }
+};

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, FlatList, Image } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
@@ -12,7 +13,8 @@ import MovieDisplayCard from "@/components/MovieCard";
 import useFetch from "@/services/useFetch";
 
 const Search = () => {
-    const [searchQuery, setSearchQuery] = useState("");
+    const { initialQuery } = useLocalSearchParams();
+    const [searchQuery, setSearchQuery] = useState(initialQuery as string || "");
 
     const {
         data: movies = [],
@@ -41,6 +43,12 @@ const Search = () => {
 
         return () => clearTimeout(timeoutId);
     }, [searchQuery]);
+
+    useEffect(() => {
+        if (initialQuery) {
+            loadMovies();
+        }
+    }, [initialQuery]);
 
     return (
         <View className="flex-1 bg-primary">
