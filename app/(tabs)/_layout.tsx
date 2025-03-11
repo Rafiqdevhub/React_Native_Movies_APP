@@ -105,7 +105,6 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="search-history"
                 options={{
-
                     href: null,
                     headerShown: false,
                 }}
