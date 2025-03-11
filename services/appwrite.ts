@@ -160,7 +160,7 @@ export const rateMovie = async (movie: MovieDetails, rating: number) => {
                 searchTerm: `rated_${movie.id}`,
                 movie_id: movie.id,
                 title: movie.title,
-                poster_path: movie.poster_path,
+                poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
                 vote_average: movie.vote_average,
                 release_date: movie.release_date,
                 rating: rating,
